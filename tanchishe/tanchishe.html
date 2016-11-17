@@ -1,0 +1,327 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<script type="text/javascript">
+<!--
+
+	function Map(){
+		var w = 800;
+		var h = 400;
+		
+		this.showmap=function(){
+			var tu=document.createElement('div');
+			tu.style.width  = w+'px';
+			tu.style.height = h+'px';
+			tu.style.margin = '0px';
+			//tu.style.backgroundColor = 'pink';
+			tu.style.backgroundImage = 'url(backImage.gif)';
+			tu.style.position = 'absolute';
+			tu.style.left = '0px';
+			tu.style.top = '0px';
+			document.body.appendChild(tu);
+		}
+	}
+
+
+
+	function Food(){
+		var len=20;
+		this.xFood=0;
+		this.yFood=0;
+		this.piece=null;
+
+		this.showfood=function(){
+			if(this.piece===null){
+				this.piece=document.createElement('div');
+				this.piece.style.width  = len+'px';
+				this.piece.style.height = len+'px';
+				this.piece.style.backgroundColor = 'blue';
+				//食物设置为绝对路径
+				this.piece.style.position = 'absolute';
+				document.body.appendChild(this.piece);
+			}
+			//食物位置采用权值坐标
+			//地图一共40*20,食物步进值为食物边长
+			this.xFood=Math.floor(Math.random()*40);//产生0-39的随机数
+			this.yFood=Math.floor(Math.random()*20);//产生0-19的随机数
+			this.piece.style.left = this.xFood * len+'px';
+			this.piece.style.top  = this.yFood * len+'px';		
+		}
+	}
+
+
+
+
+
+	function Snake(){
+		var len=20;
+		//设置默认移动方向
+		this.redirect='right';
+		this.score=0;
+		//创建蛇节,null表示有没有创建好蛇节,如果已经创建好了就不要重复创建
+		//防止出现蛇移动过程中,最后的尾巴不消失
+		this.snakebody=[[0,1,'green',null],[1,1,'green',null],[2,1,'green',null],[3,1,'red',null]];
+		
+		this.showsnake=function(){
+			for(var i=0;i<this.snakebody.length;i++){
+				if(this.snakebody[i][3]===null){
+					this.snakebody[i][3]=document.createElement('div');
+					this.snakebody[i][3].style.width  = len+'px';
+					this.snakebody[i][3].style.height = len+'px';
+					this.snakebody[i][3].style.backgroundColor = this.snakebody[i][2];
+					this.snakebody[i][3].style.position = 'absolute';
+					document.body.appendChild(this.snakebody[i][3]);
+				}
+				this.snakebody[i][3].style.left = this.snakebody[i][0] * len+'px';
+				this.snakebody[i][3].style.top  = this.snakebody[i][1] * len+'px';;	
+			}
+		}
+		
+		this.movesnake=function(){
+			//蛇尾巴先移动
+			for(var i=0;i<this.snakebody.length-1;i++){
+				this.snakebody[i][0] = this.snakebody[i+1][0] ;
+				this.snakebody[i][1] = this.snakebody[i+1][1] ;
+			}
+			//蛇头再动
+			if(this.redirect=='right'){
+				this.snakebody[this.snakebody.length-1][0] += 1;
+			}
+			if(this.redirect=='left'){
+				this.snakebody[this.snakebody.length-1][0] -= 1;
+			}
+			if(this.redirect=='up'){
+				this.snakebody[this.snakebody.length-1][1] -= 1;
+			}
+			if(this.redirect=='down'){
+				this.snakebody[this.snakebody.length-1][1] += 1;
+			}
+			//当蛇头吃到食物是,蛇增加一节
+			var xSnake = this.snakebody[this.snakebody.length-1][0];
+			var ySnake = this.snakebody[this.snakebody.length-1][1];
+			if(xSnake==food.xFood && ySnake==food.yFood){
+				//吃到一个食物,分加1
+				this.score += 1;
+				var sc=document.getElementById('score');
+				sc.firstChild.nodeValue=this.score;
+				//sc.innerHTML=this.score;
+
+				//把原来最后一个尾巴的坐标赋给新的蛇节
+				var newjie = [this.snakebody[0][0],this.snakebody[0][1],'green',null];
+				this.snakebody.unshift(newjie);
+				//吃到食物后,重新生成食物
+				food.showfood();
+			}
+			//蛇的移动范围
+			if(xSnake<0 || xSnake>39 || ySnake<0 || ySnake>19){
+				alert('game over');
+				window.clearInterval(mytime);
+				return false;
+			}
+			//蛇不能吃到自己
+			for(var k=0;k<this.snakebody.length-1;k++){
+				if(xSnake==this.snakebody[k][0]  && ySnake==this.snakebody[k][1]){
+					alert('game over');
+					window.clearInterval(mytime);
+					return false;
+				}
+			}
+			this.showsnake();
+		}
+	}
+
+	var flag  = 0;//游戏开始暂停的标志
+	var flash = 0;//音效开始停止的标志
+	var delaytime=500;
+	var nd = 'simple';
+	var mu = 'off';
+	
+
+	function fresh(){
+		window.location.href=window.location.href;//模仿刷新的效果
+	}
+
+	function setting(){
+		open('setting.html','_blank','width=500px,height=500px');
+	}
+
+	function getCookie(c_name){
+　　　　if (document.cookie.length>0){　　//先查询cookie是否为空，为空就return ""
+　　　　　　c_start=document.cookie.indexOf(c_name + "=");
+　　　　　　if (c_start!=-1){ 
+　　　　　　　　c_start=c_start + c_name.length+1;
+　　　　　　　　c_end=document.cookie.indexOf(";",c_start);
+　　　　　　　　if (c_end==-1) c_end=document.cookie.length;　
+　　　　　　　　return unescape(document.cookie.substring(c_start,c_end));
+　　　　　　} 
+　　　　}
+　　　　return null;
+　　}
+
+
+	window.onload=function(){
+		var map=new Map();
+		map.showmap();
+
+		food=new Food();
+		food.showfood();
+
+		snake=new Snake();
+		snake.showsnake();
+		
+		//设置蛇移动速度
+		//mytime=setInterval('snake.movesnake()',500);
+		//start();
+		//console.log(flag);
+		
+		var ss=document.getElementById('start');
+		ss.onclick=function(){
+			if(flag==0){
+				mytime=window.setInterval('snake.movesnake()',delaytime);
+				flag=1;
+			}
+		}
+
+		var pp=document.getElementById('pause');
+		pp.onclick=function(){
+			if(flag==1){
+				window.clearInterval(mytime);//清除时间间隔设置
+				flag=0;
+			}
+		}
+
+
+		
+		
+
+		var uu=document.getElementById('up');
+			uu.onclick=function(){
+				snake.redirect='up';
+		}
+
+		var dd=document.getElementById('down');
+			dd.onclick=function(){
+				snake.redirect='down';
+		}
+
+		var ll=document.getElementById('left');
+			ll.onclick=function(){
+				snake.redirect='left';
+		}
+
+		var rr=document.getElementById('right');
+			rr.onclick=function(){
+				snake.redirect='right';
+		}
+
+		document.onkeydown=function(evt){
+			num=evt.keyCode;
+			if(num==38){
+				snake.redirect='up';
+			}
+			if(num==40){
+				snake.redirect='down';
+			}
+			if(num==37){
+				snake.redirect='left';
+			}
+			if(num==39){
+				snake.redirect='right';
+			}
+		}
+		//nd = window.request.getParameter("nd").trim();
+		//mu = request.getParameter("mu").trim();
+		
+		
+		nd = getCookie('nandu');
+		mu = getCookie('music');
+		//console.log(nd);
+		//console.log(mu);
+		
+		if(nd=='simple') delaytime=500;
+		if(nd=='normal') delaytime=300;
+		if(nd=='difficult') delaytime=100;
+		
+		//<bgsound src="夜曲.wav" loop="true">//true 循环播放
+		//<embed src="22.mp3">
+		if(mu=='on'){
+			if(flash==0){
+				var bg=document.createElement('embed');
+				bg.setAttribute('src','夜曲.wav');
+				bg.setAttribute('loop','true');
+				bg.setAttribute('autostart','true');
+				document.getElementsByTagName('body')[0].appendChild(bg);
+				flash=1;
+			}
+		}
+		if(mu=='off'){
+			if(flash==1){
+				document.getElementsByTagName('embed')[0].parentNode.removeChild(bg);
+				flash=0;
+			}
+		}
+		
+	}
+
+
+
+
+//-->
+</script>
+<style type="text/css">
+	body{
+		margin:0px;
+	}
+	form{
+		position:absolute;
+		left:50px;
+		top:420px;
+	}
+	.in1{
+		width:120px;
+		height:60px;
+	}
+	.in2{
+		width:80px;
+		height:80px;
+	}
+	.table2{
+		position:absolute;
+		left:400px;
+		top:420px;
+		align:center;
+	}
+</style>
+</head>
+<body>
+<form>
+<table cellspacing="0px" cellpadding="5px">
+<tr>
+<td align='center'>得分</td>
+<td id='score'>0</td>
+</tr>
+<tr>
+<td><input type='button' value='开始' id='start' class='in1'/></td>
+<td><input type='button' value='暂停' id='pause' class='in1'/></td>
+</tr>
+<tr>
+<!--以下两个事件不能采用DOM操作方式,不能放在window.onload里面,因为setting.html要用到这两个事件,必须是全局函数-->
+<td><input type='button' value='新游戏' onclick='fresh()' class='in1'/></td>
+<td><input type='button' value='设置' onclick='setting()' class='in1'/></td>
+</tr>
+</table>
+</form>
+
+<table class='table2' cellpadding=10px cellspacing=0px>
+<tr>
+<td colspan="3" align="center"><input type='button' value='上' id='up' class='in2'/></td>
+</tr>
+<tr>
+<td><input type='button' value='左' id='left' class='in2'/></td>
+<td><input type='button' value='下' id='down' class='in2'/></td>
+<td><input type='button' value='右' id='right' class='in2'/></td>
+</tr>
+</table>
+</body>
+</html>

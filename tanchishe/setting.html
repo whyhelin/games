@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>游戏设置</title>
+<script type="text/javascript">
+<!--
+	function get(){
+		//var nd=window.document.set.nandu.value;
+		//var mu=window.document.set.music.value;
+ 
+		
+		var obj = document.getElementsByName("nandu");
+		for(var i=0;i<obj.length;i++){
+			if(obj[i].checked){
+				var nd = obj[i].value;
+			}
+		}
+		var ob = document.getElementsByName("music");
+		for(var i=0;i<ob.length;i++){
+			if(ob[i].checked){
+				var mu = ob[i].value;
+			}
+		}
+		//var nd=window.document.forms[0].elements[0].value;
+		//var mu=window.document.forms[0].elements[1].value;
+		
+		//由于google Chrome浏览器为了安全只支持online-cookie,所以在本地测试时是没有效果的，需要上传到服务器试一下。
+		
+		function setCookie(c_name,value,expiredays){
+			var exdate=new Date();
+			exdate.setDate(exdate.getDate() + expiredays);
+			document.cookie=c_name+ "=" + escape(value) + ((expiredays==null) ? "" : ";expires="+exdate.toGMTString());
+		}	
+
+		setCookie('nandu',nd,30);
+		setCookie('music',mu,30);
+		alert('难度:'+nd+'音效:'+mu);
+		window.opener.fresh();
+		//关闭当前浏览器窗口
+		top.window.opener = top;
+        top.window.open('','_self','');
+        top.window.close();
+	}
+
+//-->
+</script>
+</head>
+<body>
+<form method="post" name='set'>
+游戏难度:
+<label><input type="radio" id='namdu' name="nandu" value="simple">简单</label>
+<label><input type="radio" id='namdu' name="nandu" value="normal">一般</label>
+<label><input type="radio" id='namdu' name="nandu" value="difficult">困难</label><br/><br/>
+游戏音效:
+<label><input type="radio" id='music' name="music" value="on">开</label>
+<label><input type="radio" id='music' name="music" value="off">关</label><br/><br/>
+<input type="submit" value="设置" onclick='get()'>
+<input type="reset" value="重置"><br/><br/>
+</form>
+</body>
+</html>

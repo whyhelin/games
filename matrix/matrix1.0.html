@@ -1,0 +1,267 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<script type="text/javascript">
+<!--
+
+
+/*****************************设置一个N阶矩阵,其各个元素的出数值均为0*************************/
+	var n=13;
+	var matrix=new Array();
+	for(var i=0;i<n;i++){
+		matrix[i]=new Array();
+		for(var j=0;j<n;j++){
+			matrix[i][j]=0;
+		}
+	}
+
+/****************************第一步操作:将1置于矩阵第一行,最中间的那一列*********************/
+	matrix[0][(n-1)/2]=1;
+
+//数组arr用来存放当前矩阵元素的下标值X,Y
+	var arr=new Array(0,(n-1)/2);
+
+
+
+
+/*******************************设置四类操作函数*********************************/
+	function move1(a,b){
+		if(a==0 && b<n-1){
+			if(matrix[0][b]!=0 && matrix[n-1][b+1]===0){
+				matrix[n-1][b+1]=matrix[0][b]+1;
+				arr[0]=n-1;
+				arr[1]=b+1;
+				return arr;
+			}
+		}
+		return 0;
+	}
+
+	function move2(a,b){
+		if(a>0 && a<n && b<n-1){
+			if(matrix[a][b]!=0 && matrix[a-1][b+1]===0){
+				matrix[a-1][b+1]=matrix[a][b]+1;
+				arr[0]=a-1;
+				arr[1]=b+1;
+				return arr;
+			}		
+		}
+		return 0;
+	}
+
+	function move3(a,b){
+		if(a>0 && a<n && b==n-1){
+			if(matrix[a][n-1]!=0 && matrix[a-1][0]===0){
+				matrix[a-1][0]=matrix[a][n-1]+1;
+				arr[0]=a-1;
+				arr[1]=0;
+				return arr;
+			}
+		}
+		return 0;
+	}
+	
+	function move4(a,b){
+		if(a<n-1 && b<n){
+			if(matrix[a][b]!=0 && matrix[a+1][b]===0){
+				matrix[a+1][b]=matrix[a][b]+1;
+				arr[0]=a+1;
+				arr[1]=b;
+				return arr;
+			}
+		}
+		return 0;
+	}
+
+
+
+
+/*******************************四类操作函数对应的四类判断函数:判断矩阵元素的位置特点*********************************/
+	function factor1(a,b){
+		if(a==0 && b<n-1){
+			if(matrix[0][b]!=0 && matrix[n-1][b+1]===0){
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+	function factor2(a,b){
+		if(a>0 && a<n && b<n-1){
+			if(matrix[a][b]!=0 && matrix[a-1][b+1]===0){
+				return 1;
+			}		
+		}
+		return 0;
+	}
+
+	function factor3(a,b){
+		if(a>0 && a<n && b==n-1){
+			if(matrix[a][n-1]!=0 && matrix[a-1][0]===0){
+				return 1;
+			}
+		}
+		return 0;
+	}
+	
+	function factor4(a,b){
+		if(a<n-1 && b<n){
+			if(matrix[a][b]!=0 && matrix[a+1][b]===0){
+				return 1;
+			}
+		}
+		return 0;
+	}
+
+/*******************************按四类操作函数的优先级顺序操作矩阵*********************************/
+	function set(){
+		for(var x=0;x<n*n;x++){
+			if(factor1(arr[0],arr[1]) && factor4(arr[0],arr[1])){
+				arr=move1(arr[0],arr[1]);
+			}
+			if(factor2(arr[0],arr[1]) && factor4(arr[0],arr[1])){
+				arr=move2(arr[0],arr[1]);
+			}	
+			if(factor3(arr[0],arr[1]) && factor4(arr[0],arr[1])){
+				arr=move3(arr[0],arr[1]);
+			}	
+			if(factor1(arr[0],arr[1]) && !factor4(arr[0],arr[1])){
+				arr=move1(arr[0],arr[1]);
+			}	
+			if(factor2(arr[0],arr[1]) && !factor4(arr[0],arr[1])){
+				arr=move2(arr[0],arr[1]);
+			}	
+			if(factor3(arr[0],arr[1]) && !factor4(arr[0],arr[1])){
+				arr=move3(arr[0],arr[1]);
+			}	
+			if(!factor1(arr[0],arr[1]) && !factor2(arr[0],arr[1]) && !factor3(arr[0],arr[1]) && factor4(arr[0],arr[1])){
+				arr=move4(arr[0],arr[1]);
+			}	
+		}
+	}
+
+	function set1(){
+		for(var x=0;x<n*n;x++){
+			pear:
+			if(factor4(arr[0],arr[1])){
+				if(factor1(arr[0],arr[1])) {
+					arr=move1(arr[0],arr[1]);
+					break pear;
+				}
+				if(factor2(arr[0],arr[1])) {
+					arr=move2(arr[0],arr[1]);
+					break pear;
+				}
+				if(factor3(arr[0],arr[1])) {
+					arr=move3(arr[0],arr[1]);
+					break pear;
+				}
+				else {
+					arr=move4(arr[0],arr[1]);
+					break pear;
+				}
+			}
+			else {
+				if(factor1(arr[0],arr[1])) {
+					arr=move1(arr[0],arr[1]);
+					break pear;
+				}
+				else if(factor2(arr[0],arr[1])) {
+					arr=move2(arr[0],arr[1]);
+					break pear;
+				}
+				else if(factor3(arr[0],arr[1])) {
+					arr=move3(arr[0],arr[1]);
+					break pear;
+				}	
+			}
+		}
+	}
+
+
+	var flag=0;
+	function set2(){
+		for(var x=0;x<n*n;x++){
+			if(flag==0){
+				if(factor4(arr[0],arr[1])){
+					if(factor1(arr[0],arr[1])) {
+						arr=move1(arr[0],arr[1]);
+						flag=1;
+					}
+					if(factor2(arr[0],arr[1])) {
+						arr=move2(arr[0],arr[1]);
+						flag=1;
+					}
+					if(factor3(arr[0],arr[1])) {
+						arr=move3(arr[0],arr[1]);
+						flag=1;
+					}
+					else {
+						arr=move4(arr[0],arr[1]);
+						flag=1;
+					}
+				}
+				else {
+					if(factor1(arr[0],arr[1])) {
+						arr=move1(arr[0],arr[1]);
+						flag=1;
+					}
+					else if(factor2(arr[0],arr[1])) {
+						arr=move2(arr[0],arr[1]);
+						flag=1;
+					}
+					else if(factor3(arr[0],arr[1])) {
+						arr=move3(arr[0],arr[1]);
+						flag=1;
+					}	
+				}
+			}
+			flag=0;
+		}
+	}
+
+	set();
+
+/********************************绘制表格将完成的矩阵元素依次放入表格中****************************/
+	window.onload=function(){
+		for(var i=0;i<n;i++){
+				var tr=document.createElement('tr');
+				for(var j=0;j<n;j++){
+					var td=document.createElement('td');
+					var num=document.createTextNode(matrix[i][j]);
+					td.appendChild(num);
+					td.setAttribute('align','center');
+					td.setAttribute('width','20px');
+					td.setAttribute('height','20px');
+					tr.appendChild(td);
+				}
+				document.getElementsByTagName('table')[0].appendChild(tr);
+		}
+	}
+		
+	
+	
+	
+	
+	
+
+
+
+
+
+
+
+//-->
+</script>
+</head>
+<body>
+<h1>N阶矩阵</h1>
+<form>
+请输入矩阵的阶数N:<input type='text'/></br></br>
+<input type='submit' value='确定'/></br></br>
+</form>
+<table border=1 bordercolor='red'>
+</table>
+</body>
+</html>
